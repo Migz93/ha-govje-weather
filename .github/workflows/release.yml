@@ -18,7 +18,7 @@ jobs:
           sed -i 's/v0.0.0/${{ steps.version.outputs.version }}/' custom_components/govje_weather/manifest.json
 
           cd custom_components/govje_weather/
-          zip ../../govje_weather.zip ./* translations/* -x '.*'
+          zip ../../govje_weather.zip ./* -x '.*'
       - uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
