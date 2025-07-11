@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GOV.JE Weather",
+        "description": "Set up GOV.JE Weather integration",
+        "data": {
+          "name": "Name"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This integration is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure GOV.JE Weather",
+        "description": "Configure refresh interval for GOV.JE Weather",
+        "data": {
+          "scan_interval": "Refresh Interval (minutes)"
+        }
+      }
+    }
+  }
+}
