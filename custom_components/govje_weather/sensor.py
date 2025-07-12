@@ -44,6 +44,15 @@ class JerseyWeatherSensorEntityDescription(SensorEntityDescription):
 
 SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     JerseyWeatherSensorEntityDescription(
+        key="temperature",
+        name="Temperature",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: float(data.get("currentTemprature", "0").replace("°C", "")) 
+                if data.get("currentTemprature") else None,
+    ),
+    JerseyWeatherSensorEntityDescription(
         key="uv_index",
         name="UV Index",
         icon="mdi:weather-sunny-alert",
