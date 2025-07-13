@@ -111,7 +111,7 @@ Failing to update these version numbers will prevent Home Assistant from recogni
 ## Entity Naming Conventions
 
 - All sensor entities use the naming pattern: "GOV.JE [Sensor Name]"
-- The weather entity is named "GOV.JE Weather"
+- The weather entity is named "GOV.JE"
 - Entity unique IDs use the "govje_" prefix for consistent entity ID generation
 
 ## API Data Structure
@@ -125,6 +125,60 @@ Key data points include:
 - UV index
 - Sunrise/sunset times
 - Forecast data for multiple days
+
+### Weather Condition Mapping
+
+The integration uses tooltip values from the API to determine the appropriate Home Assistant weather conditions. This mapping is defined in `const.py` as `TOOLTIP_CONDITION_MAP`.
+
+Example mappings:
+```python
+TOOLTIP_CONDITION_MAP = {
+    "Sunny": ATTR_CONDITION_SUNNY,
+    "Sunny periods": ATTR_CONDITION_PARTLYCLOUDY,
+    "Cloudy with showers": ATTR_CONDITION_RAINY,
+    # ...
+}
+```
+
+#### Time-Specific Weather Conditions
+
+For the current weather condition, the integration uses time-specific tooltips based on the time of day:
+
+- Morning (5:00-11:59): Uses `iconMorningToolTip`
+- Afternoon (12:00-17:59): Uses `iconAfternoonToolTip`
+- Evening (18:00-4:59): Uses `iconEveningToolTip`
+
+If a time-specific tooltip is not available, it falls back to using `dayToolTip`.
+
+For forecast data, the integration continues to use the `dayToolTip` value for each day.
+
+#### Adding New Tooltip Mappings
+
+If you encounter new tooltip values that aren't mapped:
+
+1. Identify the new tooltip value in the API response (check `dayToolTip` fields)
+2. Determine the appropriate Home Assistant weather condition from the available options:
+   - ATTR_CONDITION_CLEAR_NIGHT
+   - ATTR_CONDITION_CLOUDY
+   - ATTR_CONDITION_FOG
+   - ATTR_CONDITION_HAIL
+   - ATTR_CONDITION_LIGHTNING
+   - ATTR_CONDITION_LIGHTNING_RAINY
+   - ATTR_CONDITION_PARTLYCLOUDY
+   - ATTR_CONDITION_POURING
+   - ATTR_CONDITION_RAINY
+   - ATTR_CONDITION_SNOWY
+   - ATTR_CONDITION_SNOWY_RAINY
+   - ATTR_CONDITION_SUNNY
+   - ATTR_CONDITION_WINDY
+   - ATTR_CONDITION_WINDY_VARIANT
+3. Add the new mapping to `TOOLTIP_CONDITION_MAP` in `const.py`
+
+Example:
+```python
+# Add new mapping
+TOOLTIP_CONDITION_MAP["Heavy rain"] = ATTR_CONDITION_POURING
+```
 
 ## Testing
 
