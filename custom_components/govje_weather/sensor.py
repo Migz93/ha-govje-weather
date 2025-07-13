@@ -45,7 +45,7 @@ class JerseyWeatherSensorEntityDescription(SensorEntityDescription):
 SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     JerseyWeatherSensorEntityDescription(
         key="temperature",
-        name="Temperature",
+        name="GOV.JE Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
@@ -54,14 +54,14 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     ),
     JerseyWeatherSensorEntityDescription(
         key="uv_index",
-        name="UV Index",
+        name="GOV.JE UV Index",
         icon="mdi:weather-sunny-alert",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("forecastDay", [])[0].get("uvIndex") if data.get("forecastDay") else None,
     ),
     JerseyWeatherSensorEntityDescription(
         key="max_temp",
-        name="Maximum Temperature",
+        name="GOV.JE Maximum Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
@@ -70,7 +70,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     ),
     JerseyWeatherSensorEntityDescription(
         key="min_temp",
-        name="Minimum Temperature",
+        name="GOV.JE Minimum Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
@@ -79,7 +79,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     ),
     JerseyWeatherSensorEntityDescription(
         key="wind_speed_mph",
-        name="Wind Speed MPH",
+        name="GOV.JE Wind Speed MPH",
         # Remove device_class to prevent automatic unit conversion
         icon="mdi:weather-windy",  # Add an icon since we're not using device_class
         native_unit_of_measurement="mph",
@@ -89,7 +89,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     ),
     JerseyWeatherSensorEntityDescription(
         key="wind_speed_knots",
-        name="Wind Speed Knots",
+        name="GOV.JE Wind Speed Knots",
         # Consistent with wind_speed_mph, no device_class to prevent automatic unit conversion
         icon="mdi:windsock",
         native_unit_of_measurement="knots",
@@ -99,21 +99,21 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     ),
     JerseyWeatherSensorEntityDescription(
         key="wind_direction",
-        name="Wind Direction",
+        name="GOV.JE Wind Direction",
         icon="mdi:compass",
         value_fn=lambda data: data.get("forecastDay", [])[0].get("windDirection")
                 if data.get("forecastDay") else None,
     ),
     JerseyWeatherSensorEntityDescription(
         key="wind_force",
-        name="Wind Force",
+        name="GOV.JE Wind Force",
         icon="mdi:weather-windy",
         value_fn=lambda data: data.get("forecastDay", [])[0].get("windSpeed")
                 if data.get("forecastDay") else None,
     ),
     JerseyWeatherSensorEntityDescription(
         key="rain_probability_morning",
-        name="Rain Probability Morning",
+        name="GOV.JE Rain Probability Morning",
         icon="mdi:weather-rainy",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -122,7 +122,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     ),
     JerseyWeatherSensorEntityDescription(
         key="rain_probability_afternoon",
-        name="Rain Probability Afternoon",
+        name="GOV.JE Rain Probability Afternoon",
         icon="mdi:weather-rainy",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -131,7 +131,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     ),
     JerseyWeatherSensorEntityDescription(
         key="rain_probability_evening",
-        name="Rain Probability Evening",
+        name="GOV.JE Rain Probability Evening",
         icon="mdi:weather-rainy",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -140,21 +140,21 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
     ),
     JerseyWeatherSensorEntityDescription(
         key="sunrise",
-        name="Sunrise",
+        name="GOV.JE Sunrise",
         icon="mdi:weather-sunset-up",
         value_fn=lambda data: data.get("forecastDay", [])[0].get("sunRise")
                 if data.get("forecastDay") else None,
     ),
     JerseyWeatherSensorEntityDescription(
         key="sunset",
-        name="Sunset",
+        name="GOV.JE Sunset",
         icon="mdi:weather-sunset-down",
         value_fn=lambda data: data.get("forecastDay", [])[0].get("sunSet")
                 if data.get("forecastDay") else None,
     ),
     JerseyWeatherSensorEntityDescription(
         key="forecast_summary",
-        name="Forecast Summary",
+        name="GOV.JE Forecast Summary",
         icon="mdi:text-box-outline",
         value_fn=lambda data: data.get("forecastDay", [])[0].get("summary")
                 if data.get("forecastDay") else None,
@@ -202,7 +202,8 @@ class JerseyWeatherSensor(
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.entity_description = description
-        self._attr_unique_id = f"{DOMAIN}_{name}_{description.key}"
+        # Set unique_id for entity registration
+        self._attr_unique_id = f"govje_{description.key}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, f"{name}")},
             "name": name,  # Use the name as-is without appending 'Weather'

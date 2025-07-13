@@ -190,13 +190,12 @@ def _build_forecast_data(day_data: dict[str, Any], is_today: bool = False, forec
 
 
 class JerseyWeather(CoordinatorWeatherEntity):
-    """Implementation of a GOV.JE Weather condition."""
+    """Representation of Jersey Weather."""
 
-    _attr_attribution = ATTRIBUTION
-    _attr_has_entity_name = True
-    _attr_name = None
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
-    _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
+    _attr_native_wind_speed_unit = UnitOfSpeed.MILES_PER_HOUR
+    _attr_has_entity_name = True
+    _attr_name = "GOV.JE Weather"
     _attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
 
     def __init__(
@@ -206,7 +205,8 @@ class JerseyWeather(CoordinatorWeatherEntity):
     ) -> None:
         """Initialize the platform with a data instance."""
         super().__init__(coordinator)
-        self._attr_unique_id = f"{DOMAIN}_{name}"
+        # Set unique_id for entity registration
+        self._attr_unique_id = f"govje_{name.lower()}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, f"{name}")},
             "name": name,  # Use the name as-is without appending 'Weather'

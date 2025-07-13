@@ -1,0 +1,142 @@
+# GOV.JE Weather Integration Development Guide
+
+This document provides information about developing and maintaining the GOV.JE Weather integration for Home Assistant.
+
+## Project Structure
+
+The integration is organized as follows:
+
+```
+custom_components/govje_weather/
+├── __init__.py        # Main integration setup and coordinator
+├── const.py           # Constants used throughout the integration
+├── manifest.json      # Integration metadata
+├── sensor.py          # Sensor entity implementations
+├── weather.py         # Weather entity implementation
+└── translations/      # Localization files (if any)
+```
+
+## File Descriptions
+
+### `__init__.py`
+
+This file is the entry point for the integration. It contains:
+- Integration setup code (`async_setup` and `async_setup_entry`)
+- Data coordinator implementation that fetches JSON data from the GOV.JE weather API
+- Platform setup for weather and sensor entities
+
+The coordinator is responsible for fetching data from the API and providing it to all entities, ensuring efficient data retrieval.
+
+### `const.py`
+
+Contains constants used throughout the integration:
+- Domain name
+- API URLs
+- Icon mappings
+- Wind direction mappings
+- Wind force to speed conversion values
+- Other configuration constants
+
+This file centralizes all constants to make maintenance easier and ensure consistency.
+
+### `manifest.json`
+
+Defines metadata for the integration:
+- Domain name
+- Name displayed in Home Assistant
+- Documentation URLs
+- Dependencies
+- Requirements
+- Version number
+
+**Important**: When making changes to the integration, always increment the version number in this file.
+
+### `sensor.py`
+
+Implements sensor entities for the integration:
+- Defines `SENSOR_TYPES` with all available sensors
+- Implements the `JerseyWeatherSensor` class
+- Sets up sensor entities with the async_setup_entry function
+
+Each sensor entity extracts specific data from the JSON response and presents it as a Home Assistant entity.
+
+### `weather.py`
+
+Implements the weather entity for the integration:
+- Defines the `JerseyWeather` class that inherits from `WeatherEntity`
+- Implements weather-specific attributes and methods
+- Builds forecast data from the API response
+
+The weather entity provides a comprehensive weather overview and forecast data.
+
+## Version Management
+
+### Version Numbering
+
+The integration follows semantic versioning (MAJOR.MINOR.PATCH):
+- MAJOR: Breaking changes
+- MINOR: New features, non-breaking
+- PATCH: Bug fixes and minor improvements
+
+### Updating Versions
+
+**Important**: When making any changes to the integration, you must increment the version number in:
+
+1. `custom_components/govje_weather/manifest.json` - The `version` field
+2. `hacs.json` - The `hacs` field
+
+Example:
+```json
+// manifest.json
+{
+  "version": "1.0.2"
+}
+
+// hacs.json
+{
+  "hacs": "1.0.2"
+}
+```
+
+Failing to update these version numbers will prevent Home Assistant from recognizing the updated integration when installed via HACS.
+
+## Development Workflow
+
+1. Make code changes
+2. Test locally
+3. Increment version numbers in both `manifest.json` and `hacs.json`
+4. Commit changes
+5. Create a release (if publishing)
+
+## Entity Naming Conventions
+
+- All sensor entities use the naming pattern: "GOV.JE [Sensor Name]"
+- The weather entity is named "GOV.JE Weather"
+- Entity unique IDs use the "govje_" prefix for consistent entity ID generation
+
+## API Data Structure
+
+The integration fetches data from the GOV.JE weather API at:
+`https://prodgojweatherstorage.blob.core.windows.net/data/jerseyForecast.json`
+
+Key data points include:
+- Current temperature
+- Wind speed and direction
+- UV index
+- Sunrise/sunset times
+- Forecast data for multiple days
+
+## Testing
+
+To test changes:
+1. Install the integration in a development Home Assistant instance
+2. Verify that all entities appear with correct names
+3. Check that data is updated correctly
+4. Verify that forecast data is displayed properly
+
+## Troubleshooting
+
+Common issues:
+- Entity naming issues: Check the unique_id generation in entity classes
+- Data not updating: Check the coordinator update interval and API response
+- Missing entities: Verify the entity setup in async_setup_entry functions
