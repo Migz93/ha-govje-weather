@@ -57,8 +57,10 @@ Implements sensor entities for the integration:
 - Defines `SENSOR_TYPES` with all available sensors
 - Implements the `JerseyWeatherSensor` class
 - Sets up sensor entities with the async_setup_entry function
+- Implements time-of-day aware sensors that use morning, afternoon, or evening data based on current time
+- Provides future forecast periods as attributes for time-of-day aware sensors
 
-Each sensor entity extracts specific data from the JSON response and presents it as a Home Assistant entity.
+Each sensor entity extracts specific data from the JSON response and presents it as a Home Assistant entity. Time-of-day aware sensors automatically select the appropriate data field based on the current time of day and expose future periods as attributes.
 
 ### `weather.py`
 
@@ -180,6 +182,29 @@ Example:
 TOOLTIP_CONDITION_MAP["Heavy rain"] = ATTR_CONDITION_POURING
 ```
 
+## API Response Structure and Quirks
+
+### Time-of-Day Specific Fields
+
+Many fields in the API response have time-of-day specific variants:
+- Morning values: Fields with suffix `Morning` or prefix `morning` (e.g., `windspeedMphMorning`, `morningDescripiton`)
+- Afternoon values: Fields with suffix `Afternoon` or prefix `afternoon` (e.g., `windspeedMphAfternoon`, `afternoonDescripiton`)
+- Evening values: Fields with suffix `Evening` or prefix `night`/`evening` (e.g., `windspeedMphEvening`, `nightDescripiton`)
+
+### Field Name Typos
+
+Some fields in the API response have typos that must be used when accessing the data:
+- Weather description fields use `Descripiton` instead of `Description` (e.g., `morningDescripiton`, `afternoonDescripiton`, `nightDescripiton`)
+
+### Time-of-Day Logic
+
+The integration uses the following time ranges to determine the current period:
+- Morning: 5:00 - 11:59
+- Afternoon: 12:00 - 17:59
+- Evening: 18:00 - 4:59 (next day)
+
+This logic is used to select the appropriate field for the current state of time-of-day aware sensors.
+
 ## Testing
 
 To test changes:
@@ -187,6 +212,7 @@ To test changes:
 2. Verify that all entities appear with correct names
 3. Check that data is updated correctly
 4. Verify that forecast data is displayed properly
+5. Test time-of-day aware sensors at different times of day
 
 ## Troubleshooting
 

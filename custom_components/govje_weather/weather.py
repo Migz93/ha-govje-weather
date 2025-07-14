@@ -280,14 +280,38 @@ class JerseyWeather(CoordinatorWeatherEntity):
 
     @property
     def native_wind_speed(self) -> float | None:
-        """Return the wind speed."""
+        """Return the wind speed based on time of day in mph."""
         if not self.coordinator.data:
             return None
             
         try:
             day_data = self.coordinator.data.get("forecastDay", [])[0]
-            wind_force = day_data.get("windSpeed")
-            return _get_wind_speed_from_force(wind_force)
+            
+            # Determine which wind speed to use based on time of day
+            time_of_day = _get_time_of_day()
+            
+            if time_of_day == "Morning":
+                wind_speed_key = "windspeedMphMorning"
+            elif time_of_day == "Afternoon":
+                wind_speed_key = "windspeedMphAfternoon"
+            else:  # Evening
+                wind_speed_key = "windspeedMphEvening"
+            
+            # Get the appropriate wind speed based on time of day
+            wind_speed_str = day_data.get(wind_speed_key)
+            
+            # If the time-specific wind speed is not available, fall back to windSpeedMPH
+            if not wind_speed_str:
+                wind_speed_str = day_data.get("windSpeedMPH")
+                
+            # Convert string to float
+            if wind_speed_str:
+                try:
+                    return float(wind_speed_str)
+                except (ValueError, TypeError):
+                    pass
+                    
+            return None
         except (IndexError, KeyError):
             return None
 
