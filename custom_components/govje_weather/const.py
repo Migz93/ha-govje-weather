@@ -53,6 +53,7 @@ TOOLTIP_CONDITION_MAP = {
     "Sunny periods": ATTR_CONDITION_PARTLYCLOUDY,
     "Cloudy, a few brighter spells": ATTR_CONDITION_PARTLYCLOUDY,
     "Cloudy a.m. Sunny p.m.": ATTR_CONDITION_PARTLYCLOUDY,
+    "Sunny a.m. Cloudy p.m.": ATTR_CONDITION_PARTLYCLOUDY,
     "Rain a.m. Sunny p.m.": ATTR_CONDITION_RAINY,
     "Fair": ATTR_CONDITION_PARTLYCLOUDY,
     "Sunshine and showers": ATTR_CONDITION_RAINY,
