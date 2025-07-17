@@ -87,7 +87,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: (
             # Determine which wind speed to use based on time of day
-            int(data.get("forecastDay", [])[0].get(f"windspeedMph{datetime.now().hour >= 18 or datetime.now().hour < 5 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 0))
+            int(data.get("forecastDay", [])[0].get(f"windspeedMph{datetime.now().hour >= 18 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 0))
             if data.get("forecastDay") else None
         ),
     ),
@@ -101,7 +101,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
         value_fn=lambda data: (
             # Determine which wind speed to use based on time of day
             int(data.get("forecastDay", [])[0].get(
-                f"windspeedKnots{datetime.now().hour >= 18 or datetime.now().hour < 5 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 0
+                f"windspeedKnots{datetime.now().hour >= 18 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 0
             ))
             if data.get("forecastDay") else None
         ),
@@ -113,7 +113,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
         value_fn=lambda data: (
             # Determine which wind direction to use based on time of day
             data.get("forecastDay", [])[0].get(
-                f"windDirection{datetime.now().hour >= 18 or datetime.now().hour < 5 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}",
+                f"windDirection{datetime.now().hour >= 18 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}",
                 data.get("forecastDay", [])[0].get("windDirection")
             )
             if data.get("forecastDay") else None
@@ -126,7 +126,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
         value_fn=lambda data: (
             # Determine which wind force to use based on time of day
             data.get("forecastDay", [])[0].get(
-                f"windSpeedForce{datetime.now().hour >= 18 or datetime.now().hour < 5 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}",
+                f"windSpeedForce{datetime.now().hour >= 18 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}",
                 data.get("forecastDay", [])[0].get("windSpeed")
             )
             if data.get("forecastDay") else None
@@ -141,7 +141,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
         value_fn=lambda data: (
             # Determine which rain probability to use based on time of day
             int(data.get("forecastDay", [])[0].get(
-                f"rainProb{datetime.now().hour >= 18 or datetime.now().hour < 5 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 0
+                f"rainProb{datetime.now().hour >= 18 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 0
             ))
             if data.get("forecastDay") else None
         ),
@@ -160,21 +160,15 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
         value_fn=lambda data: data.get("forecastDay", [])[0].get("sunSet")
                 if data.get("forecastDay") else None,
     ),
+
     JerseyWeatherSensorEntityDescription(
         key="forecast_summary",
         name="GOV.JE Forecast Summary",
         icon="mdi:text-box-outline",
-        value_fn=lambda data: data.get("forecastDay", [])[0].get("summary")
-                if data.get("forecastDay") else None,
-    ),
-    JerseyWeatherSensorEntityDescription(
-        key="weather_description",
-        name="GOV.JE Weather Description",
-        icon="mdi:text-box-outline",
         value_fn=lambda data: (
             # Determine which description to use based on time of day
             data.get("forecastDay", [])[0].get(
-                f"{datetime.now().hour >= 18 or datetime.now().hour < 5 and 'night' or datetime.now().hour >= 12 and 'afternoon' or 'morning'}Descripiton",
+                f"{datetime.now().hour >= 18 and 'night' or datetime.now().hour >= 12 and 'afternoon' or 'morning'}Descripiton",
                 None
             )
             if data.get("forecastDay") else None
@@ -189,7 +183,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
         value_fn=lambda data: (
             # Determine which wind speed to use based on time of day
             int(data.get("forecastDay", [])[0].get(
-                f"windspeedKM{datetime.now().hour >= 18 or datetime.now().hour < 5 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 0
+                f"windspeedKM{datetime.now().hour >= 18 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 0
             ))
             if data.get("forecastDay") else None
         ),
@@ -202,7 +196,7 @@ SENSOR_TYPES: tuple[JerseyWeatherSensorEntityDescription, ...] = (
         value_fn=lambda data: (
             # Determine which confidence to use based on time of day
             data.get("forecastDay", [])[0].get(
-                f"confidence{datetime.now().hour >= 18 or datetime.now().hour < 5 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 
+                f"confidence{datetime.now().hour >= 18 and 'Evening' or datetime.now().hour >= 12 and 'Afternoon' or 'Morning'}", 
                 None
             )
             if data.get("forecastDay") else None
@@ -326,8 +320,7 @@ class JerseyWeatherSensor(
                 value = day_data.get("sunRise")
             elif key == "sunset":
                 value = day_data.get("sunSet")
-            elif key == "forecast_summary":
-                value = day_data.get("summary")
+
             else:
                 value = None
                 
@@ -341,7 +334,7 @@ class JerseyWeatherSensor(
             current_hour = datetime.now().hour
             
             # Determine which periods to show
-            show_morning = current_hour < 5  # Before 5am, show today's morning
+            show_morning = False  # Morning period is 00:00-11:59, already passed at this point
             show_afternoon = current_hour < 12  # Before noon, show today's afternoon
             show_evening = current_hour < 18  # Before 6pm, show today's evening
             
@@ -382,7 +375,7 @@ class JerseyWeatherSensor(
             add_future_periods(key, "windDirectionMorning", "windDirectionAfternoon", "windDirectionEvening")
         elif key == "wind_force":
             add_future_periods(key, "windSpeedForceMorning", "windSpeedForceAfternoon", "windSpeedForceEvening")
-        elif key == "weather_description":
+        elif key == "forecast_summary":
             add_future_periods(key, "morningDescripiton", "afternoonDescripiton", "nightDescripiton")
         elif key == "confidence":
             add_future_periods(key, "confidenceMorning", "confidenceAfternoon", "confidenceEvening")
