@@ -43,6 +43,25 @@ GOVJE_NAME = "govje_name"
 # Data source
 REMOTE_URL = "https://prodgojweatherstorage.blob.core.windows.net/data/jerseyForecast.json"
 
+# Home Assistant weather conditions reference:
+# 'clear-night' - Clear, night: The sky is clear during the night. .
+# 'cloudy' - Cloudy: There are many clouds in the sky.
+# 'fog' - Fog: There is a thick mist or fog reducing visibility.
+# 'hail' - Hail: Hailstones are falling.
+# 'lightning' - Lightning: Lightning/thunderstorms are occurring.
+# 'lightning-rainy' - Lightning, rainy: Lightning/thunderstorm is occurring along with rain.
+# 'partlycloudy' - Partly cloudy: The sky is partially covered with clouds.
+# 'pouring' - Pouring: It is raining heavily.
+# 'rainy' - Rainy: It is raining.
+# 'snowy' - Snowy: It is snowing.
+# 'snowy-rainy' - Snowy, rainy: It is snowing and raining at the same time.
+# 'sunny' - Sunny: The sky is clear and the sun is shining.
+# 'windy' - Windy: It is windy. windy.
+# 'windy-variant' - Windy, cloudy: It is windy and cloudy.
+# 'exceptional' - Exceptional: Exceptional weather conditions are occurring.
+#
+# Reference: https://www.home-assistant.io/integrations/weather/#condition-mapping
+
 # Tooltip mappings based on the dayToolTip values in the JSON data
 # Map the tooltip text to Home Assistant weather conditions
 TOOLTIP_CONDITION_MAP = {
@@ -54,6 +73,8 @@ TOOLTIP_CONDITION_MAP = {
     "Cloudy, a few brighter spells": ATTR_CONDITION_PARTLYCLOUDY,
     "Cloudy a.m. Sunny p.m.": ATTR_CONDITION_PARTLYCLOUDY,
     "Sunny a.m. Cloudy p.m.": ATTR_CONDITION_PARTLYCLOUDY,
+    "Sunny a.m. Rain p.m.": ATTR_CONDITION_RAINY,
+    "Rain later": ATTR_CONDITION_RAINY,
     "Rain a.m. Sunny p.m.": ATTR_CONDITION_RAINY,
     "Fair": ATTR_CONDITION_PARTLYCLOUDY,
     "Sunshine and showers": ATTR_CONDITION_RAINY,
@@ -62,18 +83,6 @@ TOOLTIP_CONDITION_MAP = {
     "Cloudy": ATTR_CONDITION_CLOUDY,
     # Add more mappings as needed based on the full set of tooltips
 }
-
-# Old icon mappings kept for reference
-# ICON_CONDITION_MAP = {
-#     "a.svg": ATTR_CONDITION_SUNNY,         # Sunny
-#     "a1.svg": ATTR_CONDITION_SUNNY,        # Sunny and hot
-#     "b.svg": ATTR_CONDITION_PARTLYCLOUDY,  # Mainly sunny
-#     "c.svg": ATTR_CONDITION_CLEAR_NIGHT,   # Fine (night)
-#     "d.svg": ATTR_CONDITION_PARTLYCLOUDY,  # Sunny periods
-#     "d1.svg": ATTR_CONDITION_PARTLYCLOUDY, # Cloudy a.m. Sunny p.m.
-#     "e.svg": ATTR_CONDITION_PARTLYCLOUDY,  # Fair (night)
-#     # Add more mappings as needed based on the full set of icons
-# }
 
 # Wind direction mappings
 WIND_DIRECTION_MAP = {
