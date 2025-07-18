@@ -33,7 +33,7 @@ from .const import (
     DOMAIN,
     GOVJE_COORDINATOR,
     GOVJE_NAME,
-    ICON_CONDITION_MAP,
+    TOOLTIP_CONDITION_MAP,
     WIND_DIRECTION_MAP,
     WIND_FORCE_TO_SPEED,
 )
@@ -52,9 +52,9 @@ async def async_setup_entry(
     async_add_entities([JerseyWeather(coordinator, name)], False)
 
 
-def _get_condition_from_icon(icon: str) -> str | None:
-    """Map the icon to a condition."""
-    return ICON_CONDITION_MAP.get(icon)
+def _get_condition_from_tooltip(tooltip: str) -> str | None:
+    """Map the tooltip to a condition."""
+    return TOOLTIP_CONDITION_MAP.get(tooltip)
 
 
 def _get_wind_bearing_from_direction(direction: str) -> float | None:
@@ -75,6 +75,19 @@ def _extract_temp_value(temp_str: str) -> float | None:
         return float(temp_str.replace("°C", ""))
     except (ValueError, TypeError):
         return None
+
+
+def _get_time_of_day() -> str:
+    """Determine the current time of day (morning, afternoon, evening)."""
+    current_hour = datetime.now().hour
+    
+    # Define time ranges for morning, afternoon, and evening
+    if 5 <= current_hour < 12:
+        return "Morning"
+    elif 12 <= current_hour < 18:
+        return "Afternoon"
+    else:  # 18-23 and 0-4
+        return "Evening"
 
 
 def _parse_day_name_to_date(day_name: str, forecast_date: str = None) -> str:
@@ -144,10 +157,10 @@ def _build_forecast_data(day_data: dict[str, Any], is_today: bool = False, forec
         datetime=datetime_str,
     )
     
-    # Map condition from dayIcon
-    day_icon = day_data.get("dayIcon")
-    if day_icon:
-        condition = _get_condition_from_icon(day_icon)
+    # Map condition from dayToolTip
+    day_tooltip = day_data.get("dayToolTip")
+    if day_tooltip:
+        condition = _get_condition_from_tooltip(day_tooltip)
         if condition:
             forecast_data[ATTR_FORECAST_CONDITION] = condition
     
@@ -190,13 +203,11 @@ def _build_forecast_data(day_data: dict[str, Any], is_today: bool = False, forec
 
 
 class JerseyWeather(CoordinatorWeatherEntity):
-    """Implementation of a GOV.JE Weather condition."""
+    """Representation of Jersey Weather."""
 
-    _attr_attribution = ATTRIBUTION
-    _attr_has_entity_name = True
-    _attr_name = None
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
-    _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
+    _attr_native_wind_speed_unit = UnitOfSpeed.MILES_PER_HOUR
+    _attr_attribution = ATTRIBUTION
     _attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
 
     def __init__(
@@ -206,7 +217,8 @@ class JerseyWeather(CoordinatorWeatherEntity):
     ) -> None:
         """Initialize the platform with a data instance."""
         super().__init__(coordinator)
-        self._attr_unique_id = f"{DOMAIN}_{name}"
+        self._attr_unique_id = "govje"
+        self._attr_name = "GOV.JE"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, f"{name}")},
             "name": name,  # Use the name as-is without appending 'Weather'
@@ -216,15 +228,31 @@ class JerseyWeather(CoordinatorWeatherEntity):
 
     @property
     def condition(self) -> str | None:
-        """Return the current condition."""
+        """Return the current condition based on time of day."""
         if not self.coordinator.data:
             return None
             
-        # Get current condition from the first day's icon
         try:
             day_data = self.coordinator.data.get("forecastDay", [])[0]
-            icon = day_data.get("dayIcon")
-            return _get_condition_from_icon(icon)
+            
+            # Determine which tooltip to use based on time of day
+            time_of_day = _get_time_of_day()
+            
+            if time_of_day == "Morning":
+                tooltip_key = "iconMorningToolTip"
+            elif time_of_day == "Afternoon":
+                tooltip_key = "iconAfternoonToolTip"
+            else:  # Evening
+                tooltip_key = "iconEveningToolTip"
+            
+            # Get the appropriate tooltip based on time of day
+            tooltip = day_data.get(tooltip_key)
+            
+            # If the time-specific tooltip is not available, fall back to dayToolTip
+            if not tooltip:
+                tooltip = day_data.get("dayToolTip")
+                
+            return _get_condition_from_tooltip(tooltip)
         except (IndexError, KeyError):
             return None
 
@@ -252,14 +280,38 @@ class JerseyWeather(CoordinatorWeatherEntity):
 
     @property
     def native_wind_speed(self) -> float | None:
-        """Return the wind speed."""
+        """Return the wind speed based on time of day in mph."""
         if not self.coordinator.data:
             return None
             
         try:
             day_data = self.coordinator.data.get("forecastDay", [])[0]
-            wind_force = day_data.get("windSpeed")
-            return _get_wind_speed_from_force(wind_force)
+            
+            # Determine which wind speed to use based on time of day
+            time_of_day = _get_time_of_day()
+            
+            if time_of_day == "Morning":
+                wind_speed_key = "windspeedMphMorning"
+            elif time_of_day == "Afternoon":
+                wind_speed_key = "windspeedMphAfternoon"
+            else:  # Evening
+                wind_speed_key = "windspeedMphEvening"
+            
+            # Get the appropriate wind speed based on time of day
+            wind_speed_str = day_data.get(wind_speed_key)
+            
+            # If the time-specific wind speed is not available, fall back to windSpeedMPH
+            if not wind_speed_str:
+                wind_speed_str = day_data.get("windSpeedMPH")
+                
+            # Convert string to float
+            if wind_speed_str:
+                try:
+                    return float(wind_speed_str)
+                except (ValueError, TypeError):
+                    pass
+                    
+            return None
         except (IndexError, KeyError):
             return None
 

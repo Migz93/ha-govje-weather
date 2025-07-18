@@ -16,11 +16,15 @@ This custom integration provides weather data for Jersey (Channel Islands) from 
   - Live Current temperature
   - Daily maximum and minimum temperatures
   - Daily UV index
-  - Daily Wind speed
-  - Daily Wind direction and force
-  - Daily Rain probability (morning, afternoon, evening)
+  - Time-of-day aware Wind speed (in mph, km/h, and knots)
+  - Time-of-day aware Wind direction and force
+  - Time-of-day aware Weather description
+  - Time-of-day aware Rain probability
+  - Time-of-day aware Forecast confidence
   - Daily Sunrise and sunset times
   - Daily Forecast summary
+  
+> **Note:** Time-of-day aware sensors automatically show the current period's data (morning, afternoon, or evening) as their state and include all future periods as attributes.
 
 ![example][exampleimg]
 
@@ -63,7 +67,7 @@ To change these options:
 ## Data Source
 
 The integration uses weather data from the Government of Jersey's official weather service API. The data is available at:
-`https://prodgojweatherstorage.blob.core.windows.net/data/jerseyForecast.json`
+[https://prodgojweatherstorage.blob.core.windows.net/data/jerseyForecast.json](https://prodgojweatherstorage.blob.core.windows.net/data/jerseyForecast.json)
 
 ## Contributions are welcome!
 
