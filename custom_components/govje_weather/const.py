@@ -76,6 +76,7 @@ TOOLTIP_CONDITION_MAP = {
     "Sunny a.m. Rain p.m.": ATTR_CONDITION_RAINY,
     "Rain later": ATTR_CONDITION_RAINY,
     "Rain a.m. Sunny p.m.": ATTR_CONDITION_RAINY,
+    "Rain": ATTR_CONDITION_RAINY,
     "Fair": ATTR_CONDITION_PARTLYCLOUDY,
     "Sunshine and showers": ATTR_CONDITION_RAINY,
     "Cloudy with showers": ATTR_CONDITION_RAINY,
