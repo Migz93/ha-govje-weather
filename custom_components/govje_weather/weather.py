@@ -90,7 +90,29 @@ def _get_time_of_day() -> str:
         return "Evening"
 
 
-def _parse_day_name_to_date(day_name: str, forecast_date: str = None) -> str:
+def _should_use_evening_data(forecast_date: str) -> bool:
+    """Determine if we should use evening data based on time and forecast date.
+    
+    Args:
+        forecast_date: The forecast date from the API (format: "12 September 2025")
+        
+    Returns:
+        bool: True if we should use evening data (after midnight with old forecast)
+    """
+    now = datetime.now()
+    current_date = now.strftime("%d %B %Y")
+    current_hour = now.hour
+    
+    # Check if we're after midnight but the forecast hasn't updated yet
+    is_after_midnight = 0 <= current_hour < 5
+    forecast_is_current = current_date == forecast_date
+    
+    # If we're after midnight and the forecast hasn't been updated to today's date,
+    # we should continue showing the evening data from yesterday
+    return is_after_midnight and not forecast_is_current
+
+
+def _parse_day_name_to_date(day_name: str, forecast_date: str = None, cast_date: str = None) -> str:
     """Parse a day name like 'Today' or 'Sat 12 Jul' into an ISO date."""
     now = datetime.now()
     
@@ -233,17 +255,37 @@ class JerseyWeather(CoordinatorWeatherEntity):
             return None
             
         try:
-            day_data = self.coordinator.data.get("forecastDay", [])[0]
+            # Get forecast date from the API
+            forecast_date = self.coordinator.data.get("forecastDate")
             
             # Determine which tooltip to use based on time of day
             time_of_day = _get_time_of_day()
             
-            if time_of_day == "Morning":
-                tooltip_key = "iconMorningToolTip"
-            elif time_of_day == "Afternoon":
-                tooltip_key = "iconAfternoonToolTip"
-            else:  # Evening
+            # Get the first day's data
+            day_data = self.coordinator.data.get("forecastDay", [])[0]
+            
+            # Check if we should use evening data (after midnight with old forecast)
+            use_evening_data = _should_use_evening_data(forecast_date)
+            
+            # Log debug information for troubleshooting
+            _LOGGER.debug(
+                "Weather condition: forecast_date=%s, time_of_day=%s, use_evening_data=%s",
+                forecast_date, time_of_day, use_evening_data
+            )
+            
+            # If we're after midnight and the forecast hasn't been updated to today's date,
+            # we should continue showing the evening data from yesterday
+            if use_evening_data:
+                # We're after midnight but forecast is still for yesterday
                 tooltip_key = "iconEveningToolTip"
+            else:
+                # Normal time-of-day selection
+                if time_of_day == "Morning":
+                    tooltip_key = "iconMorningToolTip"
+                elif time_of_day == "Afternoon":
+                    tooltip_key = "iconAfternoonToolTip"
+                else:  # Evening
+                    tooltip_key = "iconEveningToolTip"
             
             # Get the appropriate tooltip based on time of day
             tooltip = day_data.get(tooltip_key)
@@ -285,17 +327,37 @@ class JerseyWeather(CoordinatorWeatherEntity):
             return None
             
         try:
-            day_data = self.coordinator.data.get("forecastDay", [])[0]
+            # Get forecast date from the API
+            forecast_date = self.coordinator.data.get("forecastDate")
             
             # Determine which wind speed to use based on time of day
             time_of_day = _get_time_of_day()
             
-            if time_of_day == "Morning":
-                wind_speed_key = "windspeedMphMorning"
-            elif time_of_day == "Afternoon":
-                wind_speed_key = "windspeedMphAfternoon"
-            else:  # Evening
+            # Get the first day's data
+            day_data = self.coordinator.data.get("forecastDay", [])[0]
+            
+            # Check if we should use evening data (after midnight with old forecast)
+            use_evening_data = _should_use_evening_data(forecast_date)
+            
+            # Log debug information for troubleshooting
+            _LOGGER.debug(
+                "Wind speed: forecast_date=%s, time_of_day=%s, use_evening_data=%s",
+                forecast_date, time_of_day, use_evening_data
+            )
+            
+            # If we're after midnight and the forecast hasn't been updated to today's date,
+            # we should continue showing the evening data from yesterday
+            if use_evening_data:
+                # We're after midnight but forecast is still for yesterday
                 wind_speed_key = "windspeedMphEvening"
+            else:
+                # Normal time-of-day selection
+                if time_of_day == "Morning":
+                    wind_speed_key = "windspeedMphMorning"
+                elif time_of_day == "Afternoon":
+                    wind_speed_key = "windspeedMphAfternoon"
+                else:  # Evening
+                    wind_speed_key = "windspeedMphEvening"
             
             # Get the appropriate wind speed based on time of day
             wind_speed_str = day_data.get(wind_speed_key)

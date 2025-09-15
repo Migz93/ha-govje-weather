@@ -201,9 +201,19 @@ Some fields in the API response have typos that must be used when accessing the 
 The integration uses the following time ranges to determine the current period:
 - Morning: 5:00 - 11:59
 - Afternoon: 12:00 - 17:59
-- Evening: 18:00 - 4:59 (next day)
+- Evening: 18:00 - 23:59 and 0:00 - 4:59 (with special handling after midnight, see "After-Midnight Handling" below)
 
 This logic is used to select the appropriate field for the current state of time-of-day aware sensors.
+
+#### After-Midnight Handling
+
+The integration includes special handling for the period after midnight (0:00 - 4:59):
+
+1. It compares the current date with the forecast date from the API
+2. If it's after midnight and the forecast date doesn't match the current date (meaning the API hasn't been updated yet for the new day), the integration continues to show the evening data from the previous day
+3. Once the API updates with the new day's forecast (forecast date matches current date), it switches to showing the morning data
+
+This ensures accurate data display during the transition period after midnight when the API data might not have been updated yet.
 
 ## Testing
 
