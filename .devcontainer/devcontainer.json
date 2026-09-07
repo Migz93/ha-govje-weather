@@ -1,12 +1,6 @@
 {
-  "name": "HA govje_weather Dev Container",
+  "name": "HA ${localWorkspaceFolderBasename} Dev Container",
   "image": "mcr.microsoft.com/devcontainers/base:debian",
-  "runArgs": [
-    "--name",
-    "zdev-govje_weather"
-  ],
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/govje_weather,type=bind,consistency=cached",
-  "workspaceFolder": "/workspaces/govje_weather",
   // Lifecycle hooks — execution order on first creation:
   //   onCreateCommand → updateContentCommand → postCreateCommand → postStartCommand → postAttachCommand
   // On subsequent starts (container stopped/restarted):
